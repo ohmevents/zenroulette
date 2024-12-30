@@ -53,80 +53,89 @@ function get3Neighborhood(n) {
 // Main logic
 async function sendDashboardData(sendPlayData = true) {
     console.log("Inside sendDashboardData...");
-    if (sendPlayData && (currentDealer == null || currentDealer != getDealer())) {
-        if (playRound > 0) {
-            highlightBetNumbers(false);
+    try {
+        if (sendPlayData && (currentDealer == null || currentDealer != getDealer())) {
+            if (playRound > 0) {
+                highlightBetNumbers(false);
 
-            let lastNumber = getRecentNumbers()[0];
-            let favorite = favoriteNumbers.includes(lastNumber);
+                let lastNumber = getRecentNumbers()[0];
+                let favorite = favoriteNumbers.includes(lastNumber);
 
-            // Send play data to background
-            try {
-                await chrome.runtime.sendMessage({
-                    type: "update-play",
-                    playTime: formatDate(new Date(), "HH:mm:ss dd MMM yyyy"),
-                    dealer: currentDealer,
-                    playRound: playRound,
-                    betOn: betFavorites.join("-"),
-                    winner: lastNumber,
-                    win: getWon(),
-                    favorite: favorite
-                });
-            } catch (e) {
-                console.error("Error sending play data:", e);
+                // Send play data to background
+                try {
+                    await chrome.runtime.sendMessage({
+                        type: "update-play",
+                        playTime: formatDate(new Date(), "HH:mm:ss dd MMM yyyy"),
+                        dealer: currentDealer,
+                        playRound: playRound,
+                        betOn: betFavorites.join("-"),
+                        winner: lastNumber,
+                        win: getWon(),
+                        favorite: favorite,
+                    });
+                } catch (e) {
+                    console.error("Error sending play data to background script:", e);
+                }
             }
-        }
 
-        // Reset variables
-        playRound = 0;
-        betFavorites = null;
-        betNumbers = [];
-        currentDealer = getDealer();
+            playRound = 0;
+            betFavorites = null;
+            betNumbers = [];
+            currentDealer = getDealer();
 
-        // Get recent and favorite numbers
-        recentNumbers = getRecentNumbers();
-        favoriteNumbers = getHotNumbers();
+            recentNumbers = getRecentNumbers();
+            favoriteNumbers = getHotNumbers();
 
-        try {
             // Send recommendation request
-            let msg = await chrome.runtime.sendMessage({
-                type: "api",
-                data: {
-                    action: "zrr",
-                    recentNumbers: recentNumbers,
-                    favoriteNumbers: favoriteNumbers,
-                }
-            });
+            try {
+                let msg = await chrome.runtime.sendMessage({
+                    type: "api",
+                    data: {
+                        action: "zrr",
+                        recentNumbers: recentNumbers,
+                        favoriteNumbers: favoriteNumbers,
+                    },
+                });
 
-            console.log("Recommendation from server:", msg);
+                console.log("Recommendation from server:", msg);
 
-            if (msg.success) {
-                betFavorites = msg.betFavorites;
-                highStakeNumbers = msg.highStakeNumbers;
-                betNumbers = msg.betNumbers;
-                playRound = 1;
-                highlightBetNumbers(true);
-            } else {
-                if (msg.token === undefined) {
-                    await chrome.runtime.sendMessage({ type: "logout" });
+                if (msg.success) {
+                    betFavorites = msg.betFavorites;
+                    highStakeNumbers = msg.highStakeNumbers;
+                    betNumbers = msg.betNumbers;
+                    playRound = 1;
+                    highlightBetNumbers(true);
                 } else {
-                    console.log("BET - stay");
+                    if (msg.token === undefined) {
+                        await chrome.runtime.sendMessage({ type: "logout" });
+                    } else {
+                        console.log("BET - stay");
+                    }
                 }
-            }
 
-            // Update dashboard
-            await chrome.runtime.sendMessage({
-                type: "update-dashboard",
-                recentNumbers: recentNumbers,
-                favoriteNumbers: favoriteNumbers,
-                betFavorites: betFavorites,
-                betNumbers: betNumbers,
-                highStakeNumbers: getHighStakeNumbers(recentNumbers, favoriteNumbers),
-                dealer: currentDealer
-            });
-        } catch (e) {
-            console.error("Error sending dashboard data:", e);
+                // Update dashboard
+                try {
+                    await chrome.runtime.sendMessage({
+                        type: "update-dashboard",
+                        recentNumbers: recentNumbers,
+                        favoriteNumbers: favoriteNumbers,
+                        betFavorites: betFavorites,
+                        betNumbers: betNumbers,
+                        highStakeNumbers: getHighStakeNumbers(
+                            recentNumbers,
+                            favoriteNumbers
+                        ),
+                        dealer: currentDealer,
+                    });
+                } catch (e) {
+                    console.error("Error sending dashboard update:", e);
+                }
+            } catch (e) {
+                console.error("Error sending recommendation request:", e);
+            }
         }
+    } catch (e) {
+        console.error("Critical error in sendDashboardData:", e);
     }
 }
 

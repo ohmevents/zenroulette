@@ -59,16 +59,23 @@ async function handleApi(data, sendResponse) {
         if (data.action === 'auth') {
             let response = await fetch("https://www.zenroulette.com/api/index.php", {
                 method: "POST",
-                mode: "cors",
-                cache: "no-cache",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: new URLSearchParams(data).toString(),
             });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch");
+            }
+
             let msg = await response.json();
-            chrome.storage.session.set({
-                authenticated: true,
-                securityToken: msg.token,
-            });
+
+            if (msg.success) {
+                chrome.storage.session.set({
+                    authenticated: true,
+                    securityToken: msg.token,
+                });
+            }
+
             sendResponse(msg);
         } else {
             let { authenticated, securityToken } = await chrome.storage.session.get([
@@ -77,46 +84,62 @@ async function handleApi(data, sendResponse) {
             ]);
 
             if (!authenticated) {
-                console.log("Not authenticated!");
-                sendResponse({ success: false });
-            } else {
-                data.token = securityToken;
-                let response = await fetch("https://www.zenroulette.com/api/index.php", {
-                    method: "POST",
-                    mode: "cors",
-                    cache: "no-cache",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: new URLSearchParams(data).toString(),
-                });
-                let msg = await response.json();
-                sendResponse(msg);
-
-                if (msg.token) {
-                    chrome.storage.session.set({ securityToken: msg.token });
-                } else {
-                    chrome.storage.session.set({ authenticated: false });
-                }
+                sendResponse({ success: false, msg: "Not authenticated" });
+                return;
             }
+
+            data.token = securityToken;
+
+            let response = await fetch("https://www.zenroulette.com/api/index.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams(data).toString(),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch");
+            }
+
+            let msg = await response.json();
+
+            if (msg.token) {
+                chrome.storage.session.set({ securityToken: msg.token });
+            } else {
+                chrome.storage.session.set({ authenticated: false });
+            }
+
+            sendResponse(msg);
         }
     } catch (error) {
         console.error("Error in handleApi:", error);
-        sendResponse({ success: false, error: error.message });
+        sendResponse({ success: false, msg: error.message });
     }
 }
 
+
 // Add message listener
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.type === "update-dashboard") {
-        handleUpdateDashboard(request, sendResponse);
-    } else if (request.type === "save-stats") {
-        handleSaveStats(request.playData);
-    } else if (request.type === "api") {
-        handleApi(request.data, sendResponse);
-    } else if (request.type === "reset-auth") {
-        chrome.storage.session.set({ authenticated: false });
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("Message received in background:", message);
+
+    if (message.type === "api") {
+        handleApi(message.data, sendResponse);
+    } else if (message.type === "update-play") {
+        console.log("Play data received:", message);
+        sendResponse({ success: true });
+    } else if (message.type === "update-dashboard") {
+        console.log("Dashboard update received:", message);
+        sendResponse({ success: true });
+    } else if (message.type === "logout") {
+        console.log("Logging out...");
+        sendResponse({ success: true });
+    } else {
+        console.warn("Unknown message type:", message.type);
+        sendResponse({ success: false, msg: "Unknown message type" });
     }
+
     return true; // Keeps the message channel open for async responses
 });
+
 
 // Add click handler for the browser action
 chrome.action.onClicked.addListener((tab) => {

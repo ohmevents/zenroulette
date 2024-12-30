@@ -1,0 +1,58 @@
+{
+  "manifest_version": 3,
+  "name": "Zen Roulette Assistant",
+  "version": "1.4",
+  "description": "Zen Roulette Assistant is the ultimate online roulette prediction software for professional roulette players.",
+  "icons": {
+    "48": "icons/border48.png"
+  },
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "downloads",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.zenroulette.com/"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "name": "Toggle Dashboard"
+  },
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "matches": [
+        "https://tmbge.evo-games.com/*"
+      ],
+      "js": [
+        "scripts/jquery.min.js",
+        "app.js"
+      ]
+    },
+    {
+      "all_frames": true,
+      "matches": [
+        "https://bc.game/*"
+      ],
+      "js": [
+        "scripts/jquery.min.js",
+        "scripts/jquery-ui.min.js",
+        "app.js",
+        "top.js"
+      ]
+    },
+    {
+      "matches": [
+        "https://bc.game/game/casino-malta-roulette-by-evolution-gaming"
+      ],
+      "js": [
+        "scripts/jquery.min.js",
+        "scripts/jquery-ui.min.js",
+        "top.js"
+      ]
+    }
+  ]
+}

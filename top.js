@@ -77,7 +77,7 @@ async function loginZRR() {
  * Redirect to sign-up page
  */
 function signupZRR() {
-  window.open('https://www.zenroulette.com/zen-roulette-assistant/', '_blank');
+  window.open('https://www.zenroulette.com/zenroulette-assistant-daily/', '_blank');
 }
 
 /**

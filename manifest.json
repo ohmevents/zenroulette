@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Zen Roulette Assistant",
-  "version": "1.4",
-  "description": "Zen Roulette Assistant is the ultimate online roulette prediction software for professional roulette players.",
+  "name": "ZenRoulette Assistant",
+  "version": "1.5",
+  "description": "ZenRoulette Assistant is a Chrome Extension designed for professional online roulette players. It provides advanced prediction capabilities by integrating real-time data analysis, strategic recommendations, and user authentication via a secure API.",
   "icons": {
-    "48": "icons/border48.png"
+    "48": "icons/logo.png"
   },
   "permissions": [
     "activeTab",
@@ -46,7 +46,7 @@
     },
     {
       "matches": [
-        "https://bc.game/game/casino-malta-roulette-by-evolution-gaming"
+        "https://bc.game/game/roulette-by-evolution-gaming"
       ],
       "js": [
         "scripts/jquery.min.js",

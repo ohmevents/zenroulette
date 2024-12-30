@@ -25,21 +25,21 @@ Backend:
 Installation
 
 1. Clone this repository:
+
    ```bash
-   git clone https://github.com/your-username/zen-roulette-assistant.git
+   git clone https://github.com/your-username/zenroulette.git
    ```
 
 2. Open Chrome and navigate to `chrome://extensions`.
 
-3. Enable **Developer Mode** (toggle on the top-right).
+3. Enable Developer Mode (toggle on the top-right).
 
-4. Click **Load unpacked** and select the cloned repository folder.
+4. Click Load unpacked and select the cloned repository folder.
 
-5. The extension will appear in your browser toolbar.
 
 ---
 
-## Usage
+Usage
 
 1. **Login**:
    - Enter your registered email and password to authenticate.
@@ -58,7 +58,7 @@ Installation
 
 ## Contributing
 
-We welcome contributions to improve Zen Roulette Assistant. Please follow these steps:
+We welcome contributions to improve ZenRoulette Assistant. Please follow these steps:
 
 1. Fork this repository.
 2. Create a feature branch:
@@ -85,5 +85,5 @@ This project is licensed under the MIT License. See the LICENSE file for details
 
 ## Contact
 
-For support or inquiries, please email **support@zenroulette.com** or visit [Zen Roulette Official Website](https://www.zenroulette.com).
+For support or inquiries, please email **contact@zenroulette.com** or visit [ZenRoulette Official Website](https://www.zenroulette.com).
 

@@ -97,33 +97,23 @@ async function handleApi(data, sendResponse) {
 }
 
 // Add message handler
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log("Received request:", request);
-
-    if (request.type === "api") {
-        handleApi(request.data, sendResponse);
-    } else if (request.type === "logout") {
-        console.log("Logout request received.");
-        sendResponse({ success: true });
-    } else {
-        console.warn("Unknown request type:", request.type);
-        sendResponse({ success: false, msg: "Unknown request type." });
+chrome.runtime.onMessage.addListener(
+  function (request, sender, sendResponse) {
+    if (request.type == "update-dashboard" || request.type == "update-play" || request.type == "logout") {
+      handleUpdateDashboard(request, sendResponse);
     }
-
-    return true; // Keeps the message channel open for async operations
-});
-
-function handleApi(data, sendResponse) {
-    console.log("Handling API request with data:", data);
-
-    // Simulate a successful API response for testing
-    sendResponse({
-        success: true,
-        msg: "API request processed successfully!",
-    });
-}
-
-
+    else if (request.type == "save-stats") {
+      handleSaveStats(request.playData);
+    }
+    else if (request.type == "api") {
+      handleApi(request.data, sendResponse);
+    }
+    else if (request.type == "reset-auth") {
+      authenticated = false;
+    }
+    return true;
+  }
+);
 
 /**
  * Add click handler of browserAction

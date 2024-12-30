@@ -447,15 +447,12 @@ async function loginZRR() {
 
       toggleLogin();
     }
-  } 
-  
-catch (e) {
-    console.error("Login error:", e); // Log the error for debugging
+  } catch (e) {
     $('#zrr-login-error').html(`
-      <div style='padding: 8px; color:orangered; text-align: center'>${e.message || "An unexpected error occurred."}</div>
+      <div style='padding: 8px; color:orangered; text-align: center'>${msg.msg}</div>
     `);
+  }
 }
-
 
 function toggleLogin() {
   let loginContainer = document.getElementById('zrr-login-container');
